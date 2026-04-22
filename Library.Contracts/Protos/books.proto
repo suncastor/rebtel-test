@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package library.v1;
+
+option csharp_namespace = "Library.Contracts.V1";
+
+// Service for retrieving book information.
+service Books {
+  // Retrieves the most borrowed books.
+  rpc GetMostBorrowedBooks (GetMostBorrowedBooksRequest) returns (GetMostBorrowedBooksResponse);
+}
+
+message GetMostBorrowedBooksRequest {
+  int32 top = 1;
+}
+
+message GetMostBorrowedBooksResponse {
+  repeated BorrowedBook books = 1;
+}
+
+message BorrowedBook {
+  int64 book_id = 1;
+  string title = 2;
+  int32 borrow_count = 3;
+}

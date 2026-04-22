@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Library.Application (gRPC server)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Library.Application/bin/Debug/net9.0/Library.Application.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Library.Application",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "none",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "internalConsole"
+        },
+        {
+            "name": "Library.Api (REST)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Library.Api/bin/Debug/net9.0/Library.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Library.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s/books/most-borrowed?top=3"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "internalConsole"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "API + Application",
+            "configurations": [
+                "Library.Application (gRPC server)",
+                "Library.Api (REST)"
+            ],
+            "stopAll": true
+        }
+    ]
+}

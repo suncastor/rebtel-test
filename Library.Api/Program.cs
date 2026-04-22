@@ -1,3 +1,5 @@
+using Library.Contracts.V1;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddGrpcClient<Books.BooksClient>(o =>
+{
+    o.Address = new Uri(builder.Configuration["Services:BooksGrpc"]
+        ?? throw new InvalidOperationException("Services:BooksGrpc not configured"));
+});
 
 var app = builder.Build();
 

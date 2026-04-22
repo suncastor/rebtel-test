@@ -1,26 +1,38 @@
 using Grpc.Core;
 using Library.Contracts.V1;
+using Library.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
-namespace Library.Application.Services
+namespace Library.Application.Services;
+
+public class BooksService(IBorrowingRepository borrowingRepository) : Books.BooksBase
 {
-    public class BooksService : Books.BooksBase
+    public override async Task<GetMostBorrowedBooksResponse> GetMostBorrowedBooks(
+        GetMostBorrowedBooksRequest request,
+        ServerCallContext context)
     {
-        public override Task<GetMostBorrowedBooksResponse> GetMostBorrowedBooks(
-            GetMostBorrowedBooksRequest request,
-            ServerCallContext context)
-        {
-            var top = request.Top <= 0 ? 10 : Math.Min(request.Top, 100);
+        var top = request.Top <= 0 ? 10 : Math.Min(request.Top, 100);
 
-            var result = Enumerable.Range(1, top).Select(i => new BorrowedBook
+        var books = await borrowingRepository.GetAll()
+            .Include(b => b.Book)
+            .GroupBy(b => new { b.BookId, b.Book.Title })
+            .Select(g => new
             {
-                BookId = i,
-                BorrowCount = Random.Shared.Next(100, 1000),
-                Title = "Book " + Guid.NewGuid(),
-            });
+                g.Key.BookId,
+                g.Key.Title,
+                BorrowCount = g.Count()
+            })
+            .OrderByDescending(s => s.BorrowCount)
+            .Take(top)
+            .ToListAsync();
 
-            var response = new GetMostBorrowedBooksResponse();
-            response.Books.AddRange(result);
-            return Task.FromResult(response);
-        }
+        var response = new GetMostBorrowedBooksResponse();
+        response.Books.AddRange(books.Select(s => new BorrowedBook
+        {
+            BookId = s.BookId,
+            Title = s.Title,
+            BorrowCount = s.BorrowCount
+        }));
+        return response;
     }
 }

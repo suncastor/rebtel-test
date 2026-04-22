@@ -29,3 +29,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program;
+
+namespace Library.Api
+{
+    public sealed class HttpApiMarker;
+}

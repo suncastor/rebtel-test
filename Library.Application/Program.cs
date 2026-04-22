@@ -14,10 +14,20 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
-    await DataSeeder.SeedAsync(db);
+    if (!app.Environment.IsEnvironment("Testing"))
+    {
+        await DataSeeder.SeedAsync(db);
+    }
 }
 
 app.MapGrpcService<BooksService>();
 app.MapGet("/", () => "Library.Application gRPC host — use a gRPC client.");
 
 app.Run();
+
+public partial class Program;
+
+namespace Library.Application
+{
+    public sealed class GrpcAppMarker;
+}

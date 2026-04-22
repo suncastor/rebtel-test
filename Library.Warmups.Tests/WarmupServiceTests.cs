@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace Library.Warmups.Tests;
 
 public class WarmupServiceTests

@@ -1,5 +1,4 @@
 using Library.Infrastructure.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 

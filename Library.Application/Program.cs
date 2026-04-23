@@ -21,6 +21,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapGrpcService<BooksService>();
+app.MapGrpcService<UsersService>();
 app.MapGet("/", () => "Library.Application gRPC host — use a gRPC client.");
 
 app.Run();

@@ -98,7 +98,7 @@ public class MostBorrowedBooksFeatureTests(PostgresFixture fixture) : IAsyncLife
     }
 
     [Fact]
-    public async Task GetMostBorrowedBooks_ReturnsEmpty_WhenNoBorrowings()
+    public async Task GetMostBorrowedBooks_NoBorrowings_ReturnsEmpty()
     {
         await using var db = fixture.CreateContext();
         var service = CreateService(db);
@@ -111,7 +111,7 @@ public class MostBorrowedBooksFeatureTests(PostgresFixture fixture) : IAsyncLife
     }
 
     [Fact]
-    public async Task GetMostBorrowedBooks_CountsOnlyActualBorrowings_IgnoresUnborrowedBooks()
+    public async Task GetMostBorrowedBooks_CountsOnlyActualBorrowingsAndIgnoresUnborrowedBooks()
     {
         await using (var seed = fixture.CreateContext())
         {

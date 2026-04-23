@@ -8,10 +8,16 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+var grpcCallsAddress = builder.Configuration["Services:LibraryGrpc"]
+    ?? throw new InvalidOperationException("Services:LibraryGrpc not configured");
 builder.Services.AddGrpcClient<Books.BooksClient>(o =>
 {
-    o.Address = new Uri(builder.Configuration["Services:BooksGrpc"]
-        ?? throw new InvalidOperationException("Services:BooksGrpc not configured"));
+    o.Address = new Uri(grpcCallsAddress);
+});
+
+builder.Services.AddGrpcClient<Users.UsersClient>(o =>
+{
+    o.Address = new Uri(grpcCallsAddress);
 });
 
 var app = builder.Build();

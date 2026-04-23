@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package library.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Library.Contracts.V1";
+
+// Service for retrieving user activity information.
+service Users {
+  // Retrieves users who borrowed the most books within a time frame.
+  rpc GetTopBorrowers (GetTopBorrowersRequest) returns (GetTopBorrowersResponse);
+
+  // Estimates a user's reading pace in pages per day.
+  rpc EstimateReadingPace (EstimateReadingPaceRequest) returns (EstimateReadingPaceResponse);
+}
+
+message GetTopBorrowersRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+  int32 top = 3;
+}
+
+message GetTopBorrowersResponse {
+  repeated TopBorrower borrowers = 1;
+}
+
+message TopBorrower {
+  int32 user_id = 1;
+  string full_name = 2;
+  int32 borrow_count = 3;
+}
+
+message EstimateReadingPaceRequest {
+  int32 user_id = 1;
+}
+
+message EstimateReadingPaceResponse {
+  int32 user_id = 1;
+  // Average pages-per-day across the user's completed (returned) borrowings.
+  // Unset when the user has no completed borrowings with positive duration.
+  optional double pages_per_day = 2;
+}

@@ -56,7 +56,7 @@ public class BooksServiceTests
     }
 
     [Fact]
-    public async Task GetMostBorrowedBooks_ClampsTopValue_WhenInputIsZero()
+    public async Task GetMostBorrowedBooks_InputTopIsZero_ClampsTopValue()
     {
         var mockDbSet = Enumerable.Range(0, 20).Select(i => new Borrowing
         {
@@ -93,7 +93,7 @@ public class BooksServiceTests
     }
 
     [Fact]
-    public async Task GetMostBorrowedBooks_ReturnsEmpty_WhenNoDataExists()
+    public async Task GetMostBorrowedBooks_NoDataExists_ReturnsEmpty()
     {
         // Arrange
         var emptyData = new List<Borrowing>().AsQueryable().BuildMock();

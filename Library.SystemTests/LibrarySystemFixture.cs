@@ -53,14 +53,15 @@ public class LibrarySystemFixture : IAsyncLifetime
                 builder.UseEnvironment("Testing");
                 builder.ConfigureTestServices(services =>
                 {
+                    var channel = Grpc.Net.Client.GrpcChannel.ForAddress(
+                        "http://localhost",
+                        new Grpc.Net.Client.GrpcChannelOptions { HttpHandler = grpcHandler });
+
                     services.RemoveAll<Books.BooksClient>();
-                    services.AddSingleton(_ =>
-                    {
-                        var channel = Grpc.Net.Client.GrpcChannel.ForAddress(
-                            "http://localhost",
-                            new Grpc.Net.Client.GrpcChannelOptions { HttpHandler = grpcHandler });
-                        return new Books.BooksClient(channel);
-                    });
+                    services.AddSingleton(new Books.BooksClient(channel));
+
+                    services.RemoveAll<Library.Contracts.V1.Users.UsersClient>();
+                    services.AddSingleton(new Library.Contracts.V1.Users.UsersClient(channel));
                 });
             });
 

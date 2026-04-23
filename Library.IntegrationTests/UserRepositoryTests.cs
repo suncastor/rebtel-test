@@ -42,7 +42,7 @@ public class UserRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsUser_WhenExists()
+    public async Task GetByIdAsync_ExistingUser_ReturnsUser()
     {
         int id;
         await using (var seed = fixture.CreateContext())

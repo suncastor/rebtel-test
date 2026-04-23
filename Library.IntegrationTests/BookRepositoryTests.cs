@@ -28,7 +28,7 @@ public class BookRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsBook_WhenExists()
+    public async Task GetByIdAsync_ExistingBook_ReturnsBook()
     {
         int id;
         await using (var seed = fixture.CreateContext())
@@ -49,7 +49,7 @@ public class BookRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsNull_WhenMissing()
+    public async Task GetByIdAsync_OnMissingBook_ReturnsNull()
     {
         await using var db = fixture.CreateContext();
         var repo = new BookRepository(db);
@@ -86,7 +86,7 @@ public class BookRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Delete_RemovesBook_AndCascadesBorrowings()
+    public async Task Delete_RemovesBookAndCascadesBorrowings()
     {
         int bookId;
         await using (var seed = fixture.CreateContext())
@@ -141,7 +141,7 @@ public class BookRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Book_Title_ExceedingMaxLength_Throws()
+    public async Task BookTitle_ExceedingMaxLength_Throws()
     {
         await using var db = fixture.CreateContext();
         var repo = new BookRepository(db);

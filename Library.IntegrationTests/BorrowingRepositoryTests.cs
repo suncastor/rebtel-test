@@ -11,7 +11,7 @@ public class BorrowingRepositoryTests(PostgresFixture fixture) : IAsyncLifetime
     public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
-    public async Task AddAsync_PersistsBorrowing_WithRelations()
+    public async Task AddAsync_WithRelations_PersistsBorrowing()
     {
         int bookId, userId;
         await using (var seed = fixture.CreateContext())

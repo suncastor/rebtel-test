@@ -29,4 +29,29 @@ public class BooksController(
             b.BorrowCount
         }));
     }
+
+    [HttpGet("{bookId:int}/co-borrowed")]
+    public async Task<IActionResult> GetCoBorrowed(
+        int bookId,
+        [FromQuery] int top = 10,
+        CancellationToken ct = default)
+    {
+        _logger.LogInformation("Fetching top {Top} co-borrowed books for book {BookId}", top, bookId);
+
+        var response = await booksClient.GetCoBorrowedBooksAsync(
+            new GetCoBorrowedBooksRequest { BookId = bookId, Top = top },
+            cancellationToken: ct);
+
+        _logger.LogInformation(
+            "Retrieved {Count} co-borrowed books for book {BookId}",
+            response.Books.Count,
+            bookId);
+
+        return Ok(response.Books.Select(b => new
+        {
+            b.BookId,
+            b.Title,
+            b.BorrowCount
+        }));
+    }
 }

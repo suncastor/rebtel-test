@@ -87,6 +87,62 @@ public class UserActivityQueryTests(PostgresFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task QueryCoBorrowedBooks_ReturnsOtherBooksBorrowedBySameUsers()
+    {
+        int targetBookId;
+        await using (var seed = fixture.CreateContext())
+        {
+            var alice = new User { FullName = "Alice", Email = "alice@example.com" };
+            var bob = new User { FullName = "Bob", Email = "bob@example.com" };
+            var carol = new User { FullName = "Carol", Email = "carol@example.com" };
+            seed.Users.AddRange(alice, bob, carol);
+
+            var target = new Book { Title = "Target", Author = "A", PageCount = 100, TotalCopies = 1 };
+            var b2 = new Book { Title = "Book 2", Author = "A", PageCount = 100, TotalCopies = 1 };
+            var b3 = new Book { Title = "Book 3", Author = "A", PageCount = 100, TotalCopies = 1 };
+            var unrelated = new Book { Title = "Unrelated", Author = "A", PageCount = 100, TotalCopies = 1 };
+            seed.Books.AddRange(target, b2, b3, unrelated);
+            await seed.SaveChangesAsync();
+            targetBookId = target.Id;
+
+            var now = DateTime.UtcNow;
+            seed.Borrowings.AddRange(
+                new Borrowing { UserId = alice.Id, BookId = target.Id, BorrowedAt = now },
+                new Borrowing { UserId = bob.Id, BookId = target.Id, BorrowedAt = now },
+                new Borrowing { UserId = alice.Id, BookId = b2.Id, BorrowedAt = now },
+                new Borrowing { UserId = alice.Id, BookId = b2.Id, BorrowedAt = now },
+                new Borrowing { UserId = bob.Id, BookId = b2.Id, BorrowedAt = now },
+                new Borrowing { UserId = alice.Id, BookId = b3.Id, BorrowedAt = now },
+                new Borrowing { UserId = carol.Id, BookId = unrelated.Id, BorrowedAt = now });
+            await seed.SaveChangesAsync();
+        }
+
+        await using var db = fixture.CreateContext();
+        var repo = new BorrowingRepository(db);
+
+        var userIds = repo.GetAll()
+            .Where(b => b.BookId == targetBookId)
+            .Select(b => b.UserId)
+            .Distinct();
+
+        var coBorrowed = await repo.GetAll()
+            .Where(b => b.BookId != targetBookId && userIds.Contains(b.UserId))
+            .Include(b => b.Book)
+            .GroupBy(b => new { b.BookId, b.Book.Title })
+            .Select(g => new { g.Key.BookId, g.Key.Title, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync();
+
+        Assert.Equal(2, coBorrowed.Count);
+        Assert.Equal("Book 2", coBorrowed[0].Title);
+        Assert.Equal(3, coBorrowed[0].Count);
+        Assert.Equal("Book 3", coBorrowed[1].Title);
+        Assert.Equal(1, coBorrowed[1].Count);
+        Assert.DoesNotContain(coBorrowed, c => c.Title == "Unrelated");
+        Assert.DoesNotContain(coBorrowed, c => c.Title == "Target");
+    }
+
+    [Fact]
     public async Task Query_IncludeBooks_JoinsBookPageCount()
     {
         int userId;

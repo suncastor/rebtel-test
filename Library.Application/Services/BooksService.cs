@@ -5,13 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Application.Services;
 
-public class BooksService(IBorrowingRepository borrowingRepository) : Books.BooksBase
+public class BooksService(
+    ILogger<BooksService> logger,
+    IBorrowingRepository borrowingRepository) : Books.BooksBase
 {
     public override async Task<GetMostBorrowedBooksResponse> GetMostBorrowedBooks(
         GetMostBorrowedBooksRequest request,
         ServerCallContext context)
     {
         var top = request.Top <= 0 ? 10 : Math.Min(request.Top, 100);
+
+        logger.LogInformation("Computing top {Top} most borrowed books", top);
 
         var books = await borrowingRepository.GetAll()
             .Include(b => b.Book)
@@ -25,6 +29,8 @@ public class BooksService(IBorrowingRepository borrowingRepository) : Books.Book
             .OrderByDescending(s => s.BorrowCount)
             .Take(top)
             .ToListAsync();
+
+        logger.LogInformation("Returning {Count} most borrowed books", books.Count);
 
         var response = new GetMostBorrowedBooksResponse();
         response.Books.AddRange(books.Select(s => new BorrowedBook

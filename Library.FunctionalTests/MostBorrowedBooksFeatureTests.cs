@@ -3,6 +3,7 @@ using Library.Contracts.V1;
 using Library.Infrastructure;
 using Library.Infrastructure.Entities;
 using Library.Infrastructure.Repositories;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Library.FunctionalTests;
 
@@ -15,7 +16,7 @@ public class MostBorrowedBooksFeatureTests(PostgresFixture fixture) : IAsyncLife
     private BooksService CreateService(AppDbContext db)
     {
         var repo = new BorrowingRepository(db);
-        return new BooksService(repo);
+        return new BooksService(NullLogger<BooksService>.Instance, repo);
     }
 
     [Fact]

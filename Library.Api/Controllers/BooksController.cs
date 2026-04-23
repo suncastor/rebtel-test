@@ -14,9 +14,13 @@ public class BooksController(
     [HttpGet("most-borrowed")]
     public async Task<IActionResult> GetMostBorrowed([FromQuery] int top = 10, CancellationToken ct = default)
     {
+        _logger.LogInformation("Fetching top {Top} most borrowed books", top);
+
         var response = await booksClient.GetMostBorrowedBooksAsync(
             new GetMostBorrowedBooksRequest { Top = top },
             cancellationToken: ct);
+
+        _logger.LogInformation("Retrieved {Count} most borrowed books", response.Books.Count);
 
         return Ok(response.Books.Select(b => new
         {

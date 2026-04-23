@@ -5,6 +5,7 @@ using Library.Infrastructure.Repositories;
 using Library.Application.Services;
 using Library.Infrastructure.Entities;
 using Library.Contracts.V1;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Library.UnitTests;
 
@@ -16,7 +17,7 @@ public class BooksServiceTests
     public BooksServiceTests()
     {
         _mockRepo = new Mock<IBorrowingRepository>();
-        _service = new BooksService(_mockRepo.Object);
+        _service = new BooksService(NullLogger<BooksService>.Instance, _mockRepo.Object);
     }
 
     [Fact]
